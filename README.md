@@ -15,39 +15,13 @@ Dengan adanya layanan ini, proses pencairan dan penggunaan dana KIP menjadi lebi
 
 Secara keseluruhan, M-Banking KIP membantu mahasiswa dalam mengakses bantuan pendidikan secara lebih modern, mendukung kebutuhan belajar, serta meningkatkan literasi keuangan digital di kalangan mahasiswa.
 
-| ------------------------------------------------------------------------------------------------------------------------------- |
+Fitur M-Banking KIP untuk Mahasiswa
 
-Fitur utama aplikasi mobile banking (m-banking) biasanya dirancang supaya semua urusan keuangan bisa dilakukan langsung dari HP tanpa harus ke bank. Ini yang paling penting:
-
-1. Cek Saldo & Mutasi
-Melihat saldo rekening secara real-time
-Melihat riwayat transaksi (mutasi rekening)
-2. Transfer Uang
-Transfer antar rekening (sesama bank)
-Transfer ke bank lain
-Transfer ke e-wallet (OVO, DANA, dll)
-3. Pembayaran (Payment)
-Bayar tagihan listrik, air, internet
-Bayar kartu kredit
-Bayar pajak atau BPJS
-4. Pembelian (Top Up & Pulsa)
-Isi pulsa & paket data
-Top up e-wallet
-Beli token listrik
-5. QR Payment (QRIS)
-Bayar pakai scan QR code
-Praktis buat bayar di toko/offline
-6. Manajemen Rekening
-Buka rekening baru (di beberapa bank)
-Blokir kartu ATM
-Ganti PIN/password
-7. Notifikasi Transaksi
-Pemberitahuan setiap ada transaksi masuk/keluar
-Biar lebih aman & terkontrol
-8. Keamanan (Security)
-Login pakai PIN, password, atau biometrik (sidik jari/face ID)
-OTP (One Time Password) untuk verifikasi
-9. Investasi & Layanan Tambahan (opsional)
-Beli reksa dana atau emas
-Asuransi
-Tabungan berjangka
+1.Cek saldo dana KIP secara real-time
+2.Melihat riwayat penyaluran dana
+3.Transfer dana ke rekening lain
+4.Pembayaran kebutuhan pendidikan (UKT, buku, dll)
+5.Notifikasi setiap transaksi masuk dan keluar
+6.Keamanan login (PIN, OTP, biometrik)
+7.Akses aplikasi kapan saja dan di mana saja
+8.Monitoring penggunaan dana secara transparan
