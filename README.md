@@ -18,10 +18,17 @@ Secara keseluruhan, M-Banking KIP membantu mahasiswa dalam mengakses bantuan pen
 Fitur M-Banking KIP untuk Mahasiswa
 
 1.Cek saldo dana KIP secara real-time
+
 2.Melihat riwayat penyaluran dana
+
 3.Transfer dana ke rekening lain
+
 4.Pembayaran kebutuhan pendidikan (UKT, buku, dll)
+
 5.Notifikasi setiap transaksi masuk dan keluar
+
 6.Keamanan login (PIN, OTP, biometrik)
+
 7.Akses aplikasi kapan saja dan di mana saja
+
 8.Monitoring penggunaan dana secara transparan
