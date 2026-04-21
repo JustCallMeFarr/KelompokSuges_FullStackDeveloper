@@ -1,4 +1,12 @@
 # KelompokSuges_FullStackDeveloperc
+| No | Nama           | NIM        |
+| -- | -------------- | ---------- |
+| 1  | Hanif Fatih    | 0110224104 |
+| 2  | ------------   | ---------- |
+| 3  | -------------  | ---------- |
+| 4  | -------------- | ---------- |
+| 5  | ------------   | ---------- |
+
 Fitur utama aplikasi mobile banking (m-banking) biasanya dirancang supaya semua urusan keuangan bisa dilakukan langsung dari HP tanpa harus ke bank. Ini yang paling penting:
 
 1. Cek Saldo & Mutasi
