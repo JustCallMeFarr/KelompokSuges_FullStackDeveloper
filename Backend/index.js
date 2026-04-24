@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('./db'); // Ini yang memanggil koneksi database
+const db = require('./config/db');
 const app = express();
 const PORT = 3000;
 
