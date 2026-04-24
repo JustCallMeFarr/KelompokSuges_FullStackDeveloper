@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/JustCallMeFarr/KelompokSuges_FullStackDeveloper#readme",
   "dependencies": {
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
-    "mysql2": "^3.21.1"
+    "mysql2": "^3.22.2"
   }
 }
