@@ -5,7 +5,7 @@
 | 2  | Hanif Fatih    | 0110224104 |
 | 3  | Ilham abdul    | 0110224064 |
 | 4  | Misbahul Anam S| 0110224181
-| 5  | ------------   | ---------- |
+| 5  | M. Arkan A.H   | 0110224041 |
 
 Deskripsi M-Banking KIP untuk Mahasiswa
 
