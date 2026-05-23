@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -16,14 +17,22 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 =======
+=======
+>>>>>>> 8944445059cdc43470b3324d788d02b206581695
 # KelompokSuges_FullStackDeveloperc
 | No | Nama           | NIM        |
 | -- | -------------- | ---------- |
 | 1  | Ahmad Parid    | 0110224025 |
 | 2  | Hanif Fatih    | 0110224104 |
+<<<<<<< HEAD
 | 3  | -------------  | ---------- |
 | 4  | -------------- | ---------- |
 | 5  | ------------   | ---------- |
+=======
+| 3  | Ilham abdul    | 0110224064 |
+| 4  | Misbahul Anam S| 0110224181
+| 5  | M. Arkan A.H   | 0110224041 |
+>>>>>>> 8944445059cdc43470b3324d788d02b206581695
 
 Deskripsi M-Banking KIP untuk Mahasiswa
 
@@ -50,4 +59,7 @@ Fitur M-Banking KIP untuk Mahasiswa
 7.Akses aplikasi kapan saja dan di mana saja
 
 8.Monitoring penggunaan dana secara transparan
+<<<<<<< HEAD
 >>>>>>> d025040224c8518872c7095bd154c709faa6e49f
+=======
+>>>>>>> 8944445059cdc43470b3324d788d02b206581695
