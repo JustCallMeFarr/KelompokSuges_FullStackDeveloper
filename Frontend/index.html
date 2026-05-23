@@ -1,12 +1,506 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
   <body>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KIP-K STT-NF Mobile App</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
+        
+        :root {
+            --nf-blue: #003366;
+            --nf-orange: #ff6600;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #0f172a; /* Background luar gelap estetik */
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Frame HP / Mobile Container */
+        .phone-frame {
+            width: 100%;
+            max-width: 412px; /* Standar lebar HP modern */
+            height: 100vh;
+            max-height: 892px; /* Standar tinggi iPhone/Android Panjang */
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Responsif untuk layar HP beneran biar full screen */
+        @media (max-width: 480px) {
+            .phone-frame {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 0px;
+            }
+        }
+
+        /* Jika di desktop, beri efek rounded corner biar mirip HP beneran */
+        @media (min-width: 481px) {
+            .phone-frame {
+                border-radius: 40px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                border: 8px solid #1e293b;
+            }
+        }
+
+        .dark-mode { background-color: #0f172a; color: #ffffff; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .card-gradient { background: linear-gradient(135deg, #003366 0%, #0055aa 100%); }
+        .nf-blue-text { color: var(--nf-blue); }
+
+        .page-enter { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-style {
+            width: 100%;
+            padding: 1rem;
+            background-color: #f1f5f9;
+            border-radius: 1.25rem;
+            font-weight: 600;
+            outline: none;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .input-style:focus { border-color: var(--nf-orange); background-color: white; }
+        
+        .dark-mode .input-style {
+            background-color: #1e293b;
+            color: white;
+            border-color: #334155;
+        }
+        .dark-mode .input-style:focus { border-color: var(--nf-orange); }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [page, setPage] = useState('splash');
+            const [isDark, setIsDark] = useState(false);
+            const [showQRIS, setShowQRIS] = useState(false);
+            const [activeBill, setActiveBill] = useState(null);
+            const [profileImage, setProfileImage] = useState(null);
+            const [currentTime, setCurrentTime] = useState("");
+
+            const [userData, setUserData] = useState({
+                name: "Misbah",
+                nim: "0110221001",
+                email: "misbah@student.nurulfikri.ac.id",
+                prodi: "Teknik Informatika"
+            });
+
+            const [formEdit, setFormEdit] = useState({ ...userData });
+            const [formRegister, setFormRegister] = useState({
+                name: "", nim: "", prodi: "Teknik Informatika", email: "", password: ""
+            });
+
+            const [balance, setBalance] = useState(4850000);
+            const [transactions, setTransactions] = useState([
+                { id: 1, title: 'Beasiswa KIP-K Smt 4', date: '14 Mei', amount: 4800000, type: 'CR' },
+                { id: 2, title: 'Pembayaran UKT', date: '12 Mei', amount: 3500000, type: 'DB' },
+                { id: 3, title: 'Kantin NF', date: '10 Mei', amount: 25000, type: 'DB' },
+            ]);
+
+            // Efek Jam Digital Status Bar HP
+            useEffect(() => {
+                const updateClock = () => {
+                    const now = new Date();
+                    let hours = now.getHours().toString().padStart(2, '0');
+                    let minutes = now.getMinutes().toString().padStart(2, '0');
+                    setCurrentTime(`${hours}:${minutes}`);
+                };
+                updateClock();
+                const interval = setInterval(updateClock, 60000);
+                return () => clearInterval(interval);
+            }, []);
+
+            useEffect(() => {
+                if (page === 'splash') setTimeout(() => setPage('login'), 2200);
+            }, [page]);
+
+            useEffect(() => {
+                setFormEdit({ ...userData });
+            }, [userData]);
+
+            const addTransaction = (title, amount) => {
+                if (balance < amount) {
+                    alert("Saldo tidak mencukupi!");
+                    return false;
+                }
+                setTransactions([{ id: Date.now(), title, date: 'Hari ini', amount, type: 'DB' }, ...transactions]);
+                setBalance(balance - amount);
+                setActiveBill(null);
+                alert(`${title} Berhasil!`);
+                return true;
+            };
+
+            const handleImageChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => setProfileImage(reader.result);
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const saveSettings = () => {
+                setUserData({ ...formEdit });
+                alert("Pengaturan Berhasil Disimpan!");
+                setPage('home');
+            };
+
+            const handleRegister = () => {
+                if (!formRegister.name || !formRegister.nim || !formRegister.email || !formRegister.password) {
+                    return alert("Harap isi semua field pendaftaran!");
+                }
+                setUserData({
+                    name: formRegister.name,
+                    nim: formRegister.nim,
+                    email: formRegister.email,
+                    prodi: formRegister.prodi
+                });
+                alert("Pendaftaran Berhasil!");
+                setPage('home');
+            };
+
+            const handleQRISUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const nominalBayar = 20000;
+                    const isSuccess = addTransaction("Bayar QRIS Toko/Kantin", nominalBayar);
+                    if (isSuccess) setShowQRIS(false);
+                    e.target.value = "";
+                }
+            };
+
+            // Komponen Status Bar Mockup HP Atas
+            const StatusBar = () => (
+                <div className={`w-full h-9 px-6 flex justify-between items-center text-xs font-bold select-none z-50 shrink-0 ${page === 'splash' ? 'bg-[#003366] text-white' : isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-800'}`}>
+                    <span>{currentTime || "10:00"}</span>
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                        <span>📶</span>
+                        <span>🪫</span>
+                    </div>
+                </div>
+            );
+
+            // Komponen Home Indicator Bar Bawah HP Modern
+            const HomeIndicator = () => (
+                <div className={`w-full h-5 flex justify-center items-center shrink-0 z-50 ${page === 'splash' ? 'bg-[#003366]' : isDark ? 'bg-slate-900' : 'bg-white'}`}>
+                    <div className={`w-32 h-1 rounded-full ${page === 'splash' ? 'bg-white/40' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
+                </div>
+            );
+
+            const Nav = () => (
+                <div className={`w-full h-16 border-t flex items-center justify-around px-2 z-40 shrink-0 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                    <button onClick={() => setPage('home')} className={`flex flex-col items-center gap-0.5 ${page === 'home' ? 'text-orange-500' : 'opacity-50'}`}>
+                        <span className="text-xl">🏠</span>
+                        <span className="text-[10px] font-bold uppercase">Beranda</span>
+                    </button>
+                    <button onClick={() => setShowQRIS(true)} className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-full text-white -translate-y-3 shadow-lg active:scale-90 transition-all">
+                        <span className="text-xl">📷</span>
+                    </button>
+                    <button onClick={() => setPage('profile')} className={`flex flex-col items-center gap-0.5 ${page === 'profile' ? 'text-orange-500' : 'opacity-50'}`}>
+                        <span className="text-xl">💳</span>
+                        <span className="text-[10px] font-bold uppercase">Kartu</span>
+                    </button>
+                </div>
+            );
+
+            return (
+                <div className={`phone-frame ${isDark ? 'dark-mode' : ''}`}>
+                    <StatusBar />
+                    
+                    {/* AREA CONTENT UTAMA MAHASISWA */}
+                    <div className="flex-1 flex flex-col overflow-hidden relative">
+                        
+                        {page === 'splash' && (
+                            <div className="flex-1 bg-[#003366] flex flex-col items-center justify-center text-white p-6">
+                                <div className="w-40 mb-4 p-4 bg-white rounded-2xl text-center shadow-lg flex justify-center items-center">
+                                    <img src="img/sttnf.png" alt="stt nf" className="w-36 h-auto object-contain" />
+                                </div>
+                                <h1 className="text-2xl font-extrabold tracking-widest mt-2">KIP-K MOBILE</h1>
+                                <p className="text-xs text-orange-400 font-bold uppercase mt-1 tracking-wider">Smart Campus Solution</p>
+                            </div>
+                        )}
+
+                        {page === 'login' && (
+                            <div className="flex-1 p-6 flex flex-col justify-center items-center page-enter">
+                                <div className="w-full text-center flex flex-col items-center mb-8">
+                                    <div className="p-4 bg-white rounded-2xl shadow-md mb-4 flex justify-center items-center max-w-[160px] border border-slate-100">
+                                        <img src="img/sttnf.png" alt="stt nf" className="w-32 h-auto object-contain"/>
+                                    </div>
+                                    <h2 className="text-2xl font-black text-[#003366] dark:text-white mt-2">Selamat Datang</h2>
+                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Akun Mobile KIP-K</p>
+                                </div>
+                                
+                                <div className="space-y-4 w-full">
+                                    <input type="text" placeholder="NIM" defaultValue={userData.nim} className="input-style text-sm" />
+                                    <input type="password" placeholder="Password" defaultValue="******" className="input-style text-sm" />
+                                    <button onClick={() => setPage('home')} className="w-full bg-[#003366] text-white py-4 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all tracking-wider mt-2">MASUK</button>
+                                    <div className="text-center mt-4">
+                                        <button onClick={() => setPage('register')} className="text-orange-600 font-extrabold text-xs underline uppercase tracking-wider">Daftar Akun Baru</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'register' && (
+                            <div className="flex-1 p-6 overflow-y-auto no-scrollbar flex flex-col page-enter">
+                                <div className="flex items-center gap-4 mt-2">
+                                    <button onClick={() => setPage('login')} className="text-2xl font-bold text-[#003366] dark:text-white">←</button>
+                                    <h3 className="font-black text-lg text-[#003366] dark:text-white">Daftar Akun</h3>
+                                </div>
+                                <div className="mt-6 space-y-4 flex-1">
+                                    <input type="text" placeholder="Nama Lengkap" value={formRegister.name} onChange={e => setFormRegister({...formRegister, name: e.target.value})} className="input-style text-sm" />
+                                    <input type="text" placeholder="NIM" value={formRegister.nim} onChange={e => setFormRegister({...formRegister, nim: e.target.value})} className="input-style text-sm" />
+                                    <select value={formRegister.prodi} onChange={e => setFormRegister({...formRegister, prodi: e.target.value})} className="input-style text-sm appearance-none cursor-pointer">
+                                        <option value="Teknik Informatika">Teknik Informatika</option>
+                                        <option value="Sistem Informasi">Sistem Informasi</option>
+                                        <option value="Bisnis Digital">Bisnis Digital</option>
+                                    </select>
+                                    <input type="email" placeholder="Email Student" value={formRegister.email} onChange={e => setFormRegister({...formRegister, email: e.target.value})} className="input-style text-sm" />
+                                    <input type="password" placeholder="Password" value={formRegister.password} onChange={e => setFormRegister({...formRegister, password: e.target.value})} className="input-style text-sm" />
+                                    <button onClick={handleRegister} className="w-full bg-[#003366] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg mt-4">DAFTAR</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'home' && (
+                            <div className="flex-1 flex flex-col overflow-hidden page-enter">
+                                <div className="flex-1 overflow-y-auto no-scrollbar pb-6">
+                                    <div className="px-5 py-4 flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
+                                            {profileImage ? (
+                                                <img src={profileImage} className="w-10 h-10 rounded-xl object-cover border" alt="Avatar"/>
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold text-base uppercase">{userData.name.substring(0,1)}</div>
+                                            )}
+                                            <div>
+                                                <p className="text-[10px] font-bold opacity-50 uppercase">Halo Mahasiswa,</p>
+                                                <p className="text-sm font-black nf-blue-text dark:text-white">{userData.name}</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => setPage('settings')} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm">⚙️</button>
+                                    </div>
+
+                                    <div className="px-5">
+                                        <div className="p-6 card-gradient rounded-[2rem] text-white shadow-lg relative overflow-hidden">
+                                            <p className="text-xs font-bold opacity-70 uppercase tracking-widest">Saldo Beasiswa</p>
+                                            <h2 className="text-2xl font-black mt-1">Rp {balance.toLocaleString('id-ID')}</h2>
+                                            <div className="mt-6 flex justify-between items-center">
+                                                <div className="px-3 py-1 bg-orange-50 text-slate-800 rounded-full text-[10px] font-bold">STT-NF KIP-K</div>
+                                                <p className="text-xs font-mono opacity-60">8802 {userData.nim.substring(0,4)} 2498</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-5 mt-6">
+                                        {[
+                                            {l:'UKT', i:'🏦', a: () => setActiveBill({name: "Tagihan UKT Smt 5", price: 4500000})},
+                                            {l:'Pulsa', i:'📱', a: () => { let n = prompt("Nomor HP:"); if(n) setActiveBill({name: `Pulsa (${n})`, price: 50000}) }},
+                                            {l:'Internet', i:'🌐', a: () => setActiveBill({name: "Paket Data 25GB", price: 100000})},
+                                            {l:'Listrik', i:'⚡', a: () => setActiveBill({name: "Token Listrik PLN", price: 200000})},
+                                            {l:'Top Up', i:'➕', a: () => { let am = prompt("Nominal Top Up:"); if(am) { setBalance(balance + parseInt(am)); setTransactions([{id:Date.now(), title:'Top Up', date:'Hari ini', amount:parseInt(am), type:'CR'}, ...transactions]) } }},
+                                            {l:'Tarik', i:'🏧', a: () => setActiveBill({name: "Tarik Tunai", price: 100000})},
+                                            {l:'Lainnya', i:'✨', a: () => alert("Fitur segera hadir!")}
+                                        ].map((m,i)=>(
+                                            <div key={i} onClick={m.a} className="flex flex-col items-center gap-1 cursor-pointer active:scale-90 transition-all">
+                                                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-sm text-xl border dark:border-slate-700">{m.i}</div>
+                                                <span className="text-[10px] font-black opacity-70 dark:text-white uppercase tracking-tighter text-center">{m.l}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="px-5 mt-6">
+                                        <h3 className="text-xs font-black uppercase tracking-widest mb-3">Aktivitas Terakhir</h3>
+                                        <div className="space-y-2">
+                                            {transactions.slice(0, 3).map(t => (
+                                                <div key={t.id} className="flex justify-between items-center p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${t.type === 'CR' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                                            {t.type === 'CR' ? 'IN' : 'OUT'}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-black">{t.title}</p>
+                                                            <p className="text-[9px] font-bold opacity-40">{t.date}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className={`text-xs font-black ${t.type === 'CR' ? 'text-green-600' : 'text-red-500'}`}>
+                                                        {t.type === 'CR' ? '+' : '-'} {t.amount.toLocaleString('id-ID')}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {activeBill && (
+                                    <div className="absolute inset-0 bg-black/50 z-50 flex items-end page-enter">
+                                        <div className={`w-full p-6 rounded-t-[2rem] shadow-2xl ${isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-800'}`}>
+                                            <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-4"></div>
+                                            <h4 className="font-extrabold text-xs mb-1 uppercase tracking-wider text-slate-400">Konfirmasi</h4>
+                                            <h3 className="font-black text-base">{activeBill.name}</h3>
+                                            <div className="my-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                                                <span className="text-[10px] block font-bold opacity-60">TOTAL TAGIHAN</span>
+                                                <span className="text-xl font-black text-orange-600">Rp {activeBill.price.toLocaleString('id-ID')}</span>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <button onClick={() => setActiveBill(null)} className="flex-1 py-3.5 bg-slate-200 dark:bg-slate-700 text-xs font-bold rounded-xl">Batal</button>
+                                                <button onClick={() => addTransaction(activeBill.name, activeBill.price)} className="flex-1 py-3.5 bg-orange-600 text-white text-xs font-black rounded-xl shadow-md">Bayar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <Nav />
+                            </div>
+                        )}
+
+                        {page === 'settings' && (
+                            <div className="flex-1 flex flex-col overflow-hidden page-enter">
+                                <div className="flex-1 overflow-y-auto no-scrollbar p-5">
+                                    <div className="w-full flex items-center gap-4 mb-4">
+                                        <button onClick={() => setPage('home')} className="text-2xl font-bold">←</button>
+                                        <h3 className="font-black text-base">Pengaturan</h3>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2 mb-4">
+                                        <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-orange-500 bg-slate-100 flex items-center justify-center">
+                                            {profileImage ? <img src={profileImage} className="w-full h-full object-cover" alt="Profile" /> : <span className="text-2xl">👤</span>}
+                                        </div>
+                                        <label className="text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg font-bold cursor-pointer border uppercase shadow-sm">
+                                            Ubah Foto
+                                            <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                        </label>
+                                    </div>
+
+                                    <div className="space-y-4 text-sm">
+                                        <div>
+                                            <label className="text-[10px] font-bold uppercase opacity-60 block mb-1">Nama Lengkap</label>
+                                            <input type="text" value={formEdit.name} onChange={e => setFormEdit({...formEdit, name: e.target.value})} className="input-style !p-3 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold uppercase opacity-60 block mb-1">NIM</label>
+                                            <input type="text" value={formEdit.nim} onChange={e => setFormEdit({...formEdit, nim: e.target.value})} className="input-style !p-3 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold uppercase opacity-60 block mb-1">Program Studi</label>
+                                            <input type="text" value={formEdit.prodi} onChange={e => setFormEdit({...formEdit, prodi: e.target.value})} className="input-style !p-3 text-sm" />
+                                        </div>
+                                        <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700 mt-2">
+                                            <span className="text-xs font-bold uppercase opacity-70">Mode Gelap</span>
+                                            <input type="checkbox" checked={isDark} onChange={() => setIsDark(!isDark)} className="w-5 h-5 accent-orange-500" />
+                                        </div>
+                                        <button onClick={saveSettings} className="w-full bg-orange-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest mt-4">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'profile' && (
+                            <div className="flex-1 flex flex-col overflow-hidden page-enter">
+                                <div className="flex-1 overflow-y-auto no-scrollbar p-5">
+                                    <div className="w-full flex items-center gap-4 mb-6">
+                                        <button onClick={() => setPage('home')} className="text-2xl font-bold">←</button>
+                                        <h3 className="font-black text-base">Kartu Digital KIP-K</h3>
+                                    </div>
+
+                                    <div className="w-full p-6 card-gradient rounded-2xl text-white shadow-xl aspect-[1.586/1] flex flex-col justify-between relative overflow-hidden">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-xs font-extrabold tracking-widest opacity-80 uppercase">STT Terpadu Nurul Fikri</p>
+                                                <p className="text-[9px] opacity-60 font-medium">Beasiswa Terintegrasi</p>
+                                            </div>
+                                            <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-sm">🎓</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <h3 className="text-sm font-bold tracking-wider font-mono">{userData.nim.replace(/(\d{4})/g, '$1 ')}</h3>
+                                            <div className="flex justify-between items-end mt-4">
+                                                <div>
+                                                    <p className="text-[8px] uppercase tracking-tighter opacity-50">Pemegang Kartu</p>
+                                                    <p className="text-xs font-black uppercase tracking-wide">{userData.name}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[8px] uppercase tracking-tighter opacity-50">Prodi</p>
+                                                    <p className="text-xs font-bold">{userData.prodi}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 space-y-3 text-sm">
+                                        <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border dark:border-slate-800 flex justify-between">
+                                            <span className="opacity-60 font-bold">Status Registrasi</span>
+                                            <span className="text-green-600 font-extrabold">AKTIF SEMESTER 4</span>
+                                        </div>
+                                        <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border dark:border-slate-800 flex justify-between">
+                                            <span className="opacity-60 font-bold">Alokasi Dana / Smt</span>
+                                            <span className="text-blue-600 dark:text-blue-400 font-extrabold">Rp 4.800.000</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <Nav />
+                            </div>
+                        )}
+
+                        {showQRIS && (
+                            <div className="absolute inset-0 bg-black/95 z-50 flex flex-col justify-between p-6 text-white page-enter">
+                                <div className="flex justify-between items-center mt-2">
+                                    <h3 className="font-black text-sm tracking-widest uppercase">QRIS Scanner</h3>
+                                    <button onClick={() => setShowQRIS(false)} className="text-xl">✕</button>
+                                </div>
+                                <div className="w-64 h-64 border-4 border-orange-500 border-dashed rounded-3xl mx-auto flex items-center justify-center relative overflow-hidden">
+                                    <div className="absolute inset-x-0 h-1 bg-orange-500 top-0 animate-bounce"></div>
+                                    <p className="text-center text-xs p-4 opacity-70 font-bold uppercase">Arahkan kamera ke QRIS Kantin NF</p>
+                                </div>
+                                <div className="mb-4 flex flex-col gap-2">
+                                    <label className="w-full bg-orange-600 text-center py-4 rounded-xl font-black text-sm cursor-pointer shadow-lg active:scale-95 transition-all">
+                                        UNGGAH DARI GALERI
+                                        <input type="file" accept="image/*" onChange={handleQRISUpload} className="hidden" />
+                                    </label>
+                                    <button onClick={() => { addTransaction("Pembayaran Kantin Sukses", 20000); setShowQRIS(false); }} className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center mt-2 underline">Simulasi Bayar Cepat</button>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+
+                    <HomeIndicator />
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
