@@ -477,22 +477,20 @@
                                     <h3 className="font-black text-sm tracking-widest uppercase">QRIS Scanner</h3>
                                     <button onClick={() => setShowQRIS(false)} className="text-xl">✕</button>
                                 </div>
-                                <div className="w-64 h-64 border-4 border-orange-500 border-dashed rounded-3xl mx-auto flex items-center justify-center relative overflow-hidden">
+                                <div className="w-64 h-64 border-4 border-orange-500 border-dashed rounded-3xl mx-auto flex flex-col items-center justify-center relative overflow-hidden bg-slate-900/50">
                                     <div className="absolute inset-x-0 h-1 bg-orange-500 top-0 animate-bounce"></div>
-                                    <p className="text-center text-xs p-4 opacity-70 font-bold uppercase">Arahkan kamera ke QRIS Kantin NF</p>
+                                    <p className="text-center text-[11px] p-4 opacity-70 font-bold uppercase tracking-wider">Arahkan Kamera ke QRIS Kantin / Toko</p>
                                 </div>
-                                <div className="mb-4 flex flex-col gap-2">
-                                    <label className="w-full bg-orange-600 text-center py-4 rounded-xl font-black text-sm cursor-pointer shadow-lg active:scale-95 transition-all">
-                                        UNGGAH DARI GALERI
+                                <div className="w-full flex flex-col items-center mb-6">
+                                    <label className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-wider rounded-xl cursor-pointer shadow-lg active:scale-95 transition-all">
+                                        📁 Upload Gambar QRIS
                                         <input type="file" accept="image/*" onChange={handleQRISUpload} className="hidden" />
                                     </label>
-                                    <button onClick={() => { addTransaction("Pembayaran Kantin Sukses", 20000); setShowQRIS(false); }} className="text-xs text-slate-400 font-bold uppercase tracking-widest text-center mt-2 underline">Simulasi Bayar Cepat</button>
                                 </div>
                             </div>
                         )}
 
                     </div>
-
                     <HomeIndicator />
                 </div>
             );
