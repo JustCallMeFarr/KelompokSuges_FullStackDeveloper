@@ -31,17 +31,25 @@ app.use('/uploads', express.static('uploads'));
 
 // REGISTER
 app.post('/api/auth/register', async (req, res) => {
-    const { nim, username, password, pin } = req.body;
+    const { nim, username, email, password, pin } = req.body;
     try {
         const [mahasiswa] = await db.promise().query("SELECT * FROM mahasiswa WHERE nim = ?", [nim]);
         if (mahasiswa.length === 0) return res.status(400).json({ message: "NIM tidak terdaftar di sistem mahasiswa!" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.promise().query(
-            "INSERT INTO users (nim, username, password, pin) VALUES (?, ?, ?, ?)",
-            [nim, username, hashedPassword, pin]
+        const [result] = await db.promise().query(
+            "INSERT INTO users (nim, username, email, password, pin) VALUES (?, ?, ?, ?, ?)",
+            [nim, username, email, hashedPassword, pin]
         );
-        res.status(201).json({ message: "User berhasil didaftarkan!" });
+
+        res.status(201).json({
+            message: "User berhasil didaftarkan!",
+            user: {
+                id_user: result.insertId,
+                username,
+                email
+            }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -58,7 +66,17 @@ app.post('/api/auth/login', async (req, res) => {
         if (!isMatch) return res.status(400).json({ message: "Password salah!" });
 
         const token = jwt.sign({ id: users[0].id_user }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ message: "Login Berhasil!", token, user: users[0].username });
+        res.json({
+            message: "Login Berhasil!",
+            token,
+            user: {
+                id_user: users[0].id_user,
+                username: users[0].username,
+                email: users[0].email,
+                display_name: users[0].display_name,
+                pin: users[0].pin
+            }
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -73,6 +91,39 @@ app.post('/api/upload', upload.single('berkas'), (req, res) => {
     });
 });
 
+app.put('/api/profile/setup', async (req, res) => {
+    console.log("BODY:", req.body);
+
+    const { displayName, pin, userId } = req.body;
+
+    console.log("displayName:", displayName);
+    console.log("pin:", pin);
+    console.log("userId:", userId);
+
+    try {
+        const [result] = await db.promise().query(
+            `
+            UPDATE users
+            SET display_name = ?, pin = ?
+            WHERE id_user = ?
+            `,
+            [displayName, pin, userId]
+        );
+
+        console.log("UPDATE RESULT:", result);
+
+        res.json({
+            message: "Profile berhasil diperbarui"
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+
 // --- 5. CEK KONEKSI & TEST ---
 app.get('/', (req, res) => res.send('API KIP-K Tracker Ready!'));
 
@@ -84,3 +135,4 @@ app.listen(PORT, () => {
 📂 Route Upload:   http://localhost:3000/api/upload
     `);
 });
+
