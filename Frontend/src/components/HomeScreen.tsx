@@ -25,6 +25,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [displayName, setDisplayName] = useState("User");
+  const [wallet, setWallet] = useState<any>(null);
 
   const initials = displayName
     .split(" ")
@@ -34,14 +35,23 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
     .toUpperCase();
 
   useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  setDisplayName(
-    user.display_name ||
-    user.username ||
-    "User"
-  );
-}, []);
+    setDisplayName(
+      user.display_name ||
+      user.username ||
+      "User"
+    );
+
+    fetch(`http://localhost:3000/api/user/${user.id_user}/balance`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("WALLET:", data);
+        setWallet(data);
+      })
+      .catch(err => console.error(err));
+
+  }, []);
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: "#F0F4FF" }}>
@@ -123,7 +133,10 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "12px" }}>Total Balance</p>
               <div className="flex items-center gap-2 mt-1">
                 <h2 style={{ color: "white", letterSpacing: "-0.02em" }}>
-                  {balanceVisible ? "Rp 24.750.000" : "Rp ••••••••"}
+                  {balanceVisible
+                    ? `Rp ${wallet?.balance?.toLocaleString("id-ID") || 0}`
+                    : "Rp ••••••••"
+                  }
                 </h2>
                 <button onClick={() => setBalanceVisible(!balanceVisible)} style={{ color: "rgba(255,255,255,0.6)" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -135,7 +148,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
                 </button>
               </div>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", marginTop: 4 }}>
-                **** **** **** 4821
+                {wallet?.card_number || "Loading..."}
               </p>
             </div>
             <div style={{ textAlign: "right" }}>

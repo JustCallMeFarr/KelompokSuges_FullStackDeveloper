@@ -1,5 +1,6 @@
 import { ChevronRight, User, Shield, Bell, HelpCircle, LogOut, Edit3, Camera } from "lucide-react";
 import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 
 interface ProfileScreenProps {
   onLogout: () => void;
@@ -13,6 +14,11 @@ const menuItems = [
 ];
 
 export function ProfileScreen({ onLogout }: ProfileScreenProps) {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    setUser(storedUser);
+  }, []);
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: "#F0F4FF" }}>
       {/* Header */}
@@ -66,8 +72,13 @@ export function ProfileScreen({ onLogout }: ProfileScreenProps) {
           </button>
         </div>
 
-        <h2 style={{ color: "white" }}>Budi Santoso</h2>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: 4 }}>budi.santoso@email.com</p>
+        <h2 style={{ color: "white" }}>
+          {user?.display_name || user?.username || "User"}
+        </h2>
+
+        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: 4 }}>
+          {user?.email || "-"}
+        </p>
 
         {/* Verified badge */}
         <div

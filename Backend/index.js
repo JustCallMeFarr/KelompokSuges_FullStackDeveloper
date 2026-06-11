@@ -5,6 +5,7 @@ const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./config/db'); // Pastikan db.js kamu sudah benar
+const userRoutes = require('./routers/userRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -26,6 +27,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
+app.use('/api', userRoutes);
 
 // --- 3. ROUTES AUTH (REGISTER & LOGIN) ---
 
@@ -37,9 +39,12 @@ app.post('/api/auth/register', async (req, res) => {
         if (mahasiswa.length === 0) return res.status(400).json({ message: "NIM tidak terdaftar di sistem mahasiswa!" });
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const cardNumber = "4080" + Math.floor(100000000000 + Math.random() * 900000000000);
+        const cardHolder = username;
+
         const [result] = await db.promise().query(
-            "INSERT INTO users (nim, username, email, password, pin) VALUES (?, ?, ?, ?, ?)",
-            [nim, username, email, hashedPassword, pin]
+            "INSERT INTO users (nim, username, email, password, pin, balance, card_number, card_holder) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [nim, username, email, hashedPassword, pin, 0, cardNumber, cardHolder]
         );
 
         res.status(201).json({

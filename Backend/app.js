@@ -10,6 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/api/mahasiswa", mahasiswaRoutes);
+app.use('/api', userRoutes);
 
 app.listen(3000, () => {
     console.log("SERVER JALAN DI PORT 3000");
