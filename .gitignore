@@ -1,0 +1,18 @@
+# Root
+node_modules/
+package-lock.json
+
+# Frontend
+Frontend/node_modules/
+Frontend/dist/
+
+# Backend
+Backend/node_modules/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
