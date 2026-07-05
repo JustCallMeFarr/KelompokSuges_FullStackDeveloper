@@ -4,7 +4,10 @@ import { useState } from "react";
 
 interface QRScanScreenProps {
   onBack: () => void;
-  onScanSuccess: () => void;
+  onScanSuccess: (data: {
+    merchant: string;
+    amount: number;
+  }) => void;
 }
 
 export function QRScanScreen({ onBack, onScanSuccess }: QRScanScreenProps) {
@@ -13,9 +16,15 @@ export function QRScanScreen({ onBack, onScanSuccess }: QRScanScreenProps) {
 
   const handleSimulateScan = () => {
     setScanning(true);
+
     setTimeout(() => {
       setScanning(false);
-      onScanSuccess();
+
+      onScanSuccess({
+        merchant: "Kantin FT",
+        amount: 25000,
+      });
+
     }, 1500);
   };
 
@@ -93,13 +102,13 @@ export function QRScanScreen({ onBack, onScanSuccess }: QRScanScreenProps) {
             ) : (
               <div className="flex flex-col items-center gap-2 opacity-30">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2"/>
-                  <rect x="28" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2"/>
-                  <rect x="4" y="28" width="16" height="16" rx="2" stroke="white" strokeWidth="2"/>
-                  <rect x="8" y="8" width="8" height="8" fill="white"/>
-                  <rect x="32" y="8" width="8" height="8" fill="white"/>
-                  <rect x="8" y="32" width="8" height="8" fill="white"/>
-                  <path d="M28 28h4v4h-4zM36 28h4v4h-4zM28 36h4v4h-4zM36 36h4v4h-4z" fill="white"/>
+                  <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2" />
+                  <rect x="28" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2" />
+                  <rect x="4" y="28" width="16" height="16" rx="2" stroke="white" strokeWidth="2" />
+                  <rect x="8" y="8" width="8" height="8" fill="white" />
+                  <rect x="32" y="8" width="8" height="8" fill="white" />
+                  <rect x="8" y="32" width="8" height="8" fill="white" />
+                  <path d="M28 28h4v4h-4zM36 28h4v4h-4zM28 36h4v4h-4zM36 36h4v4h-4z" fill="white" />
                 </svg>
                 <p style={{ color: "white", fontSize: "11px" }}>Tap to simulate scan</p>
               </div>

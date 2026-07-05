@@ -4,9 +4,20 @@ import { motion } from "motion/react";
 interface PaymentConfirmScreenProps {
   onBack: () => void;
   onConfirm: () => void;
+
+  transferData: {
+    rekening: string;
+    nama: string;
+    jumlah: number;
+    keterangan: string;
+  };
 }
 
-export function PaymentConfirmScreen({ onBack, onConfirm }: PaymentConfirmScreenProps) {
+export function PaymentConfirmScreen({
+  onBack,
+  onConfirm,
+  transferData
+}: PaymentConfirmScreenProps) {
   return (
     <div className="flex flex-col h-full" style={{ background: "#F0F4FF" }}>
       {/* Header */}
@@ -28,6 +39,7 @@ export function PaymentConfirmScreen({ onBack, onConfirm }: PaymentConfirmScreen
           Review your payment details
         </p>
       </div>
+
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -59,8 +71,8 @@ export function PaymentConfirmScreen({ onBack, onConfirm }: PaymentConfirmScreen
               🏪
             </div>
             <div>
-              <h3 style={{ color: "#0A1628" }}>Warung Makan Padang</h3>
-              <p style={{ color: "#94A3B8", fontSize: "12px", marginTop: 2 }}>ID: WMP-08291847</p>
+              {transferData.nama}
+              <p style={{ color: "#94A3B8", fontSize: "12px", marginTop: 2 }}>{transferData.rekening}</p>
               <div className="flex items-center gap-1 mt-1">
                 <ShieldCheck size={12} color="#10B981" />
                 <span style={{ color: "#10B981", fontSize: "11px", fontWeight: 600 }}>Verified Merchant</span>
@@ -73,7 +85,9 @@ export function PaymentConfirmScreen({ onBack, onConfirm }: PaymentConfirmScreen
           {/* Amount */}
           <div className="text-center py-4">
             <p style={{ color: "#94A3B8", fontSize: "12px" }}>Total Payment</p>
-            <h1 style={{ color: "#0A1628", letterSpacing: "-0.02em", marginTop: 4 }}>Rp 75.000</h1>
+            <h1>
+              Rp {transferData.jumlah.toLocaleString("id-ID")}
+            </h1>
           </div>
 
           <div style={{ height: 1, background: "rgba(0,0,0,0.06)", margin: "4px 0 16px" }} />
@@ -162,7 +176,47 @@ export function PaymentConfirmScreen({ onBack, onConfirm }: PaymentConfirmScreen
             Batal
           </button>
           <button
-            onClick={onConfirm}
+            onClick={async () => {
+
+              const user = JSON.parse(localStorage.getItem("user")!);
+
+              const res = await fetch("http://localhost:3000/api/transfer", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  id_user: user.id_user,
+                  rekening_tujuan: transferData.rekening,
+                  jumlah: transferData.jumlah,
+                  keterangan: transferData.keterangan,
+                }),
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+
+                const paymentResult = {
+                  merchant: transferData.nama,
+                  amount: transferData.jumlah,
+                  description: transferData.keterangan,
+                  reference: "TRF" + Date.now(),
+                  date: new Date().toLocaleString("id-ID"),
+                };
+
+                localStorage.setItem(
+                  "lastPayment",
+                  JSON.stringify(paymentResult)
+                );
+
+                onConfirm();
+
+              } else {
+                alert(data.message);
+              }
+
+            }}
             style={{
               flex: 2,
               background: "linear-gradient(135deg, #1E5FFF, #4D84FF)",

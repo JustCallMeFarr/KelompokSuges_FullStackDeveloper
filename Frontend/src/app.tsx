@@ -14,6 +14,7 @@ import { BottomNav } from "./components/BottomNav";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
 import { SetupProfileScreen } from "./components/SetupProfileScreen";
+import { PaymentConfirmScanScreen } from "./components/PaymentConfirmScanScreen";
 
 type Screen =
   | "splash"
@@ -28,7 +29,8 @@ type Screen =
   | "receiptresult"
   | "profile"
   | "history"
-  | "setup-profile";
+  | "setup-profile"
+  | "payconfirmscan";
 
 const SCREENS_WITH_NAV = new Set(["home", "transfer", "qrscan", "profile", "history"]);
 
@@ -36,6 +38,17 @@ export default function App() {
   {/* MARKER-MAKE-KIT-INVOKED */ }
   const [screen, setScreen] = useState<Screen>("splash");
   const [navActive, setNavActive] = useState("home");
+  const [transferData, setTransferData] = useState({
+    rekening: "",
+    nama: "",
+    jumlah: 0,
+    keterangan: "",
+  });
+  const [paymentData, setPaymentData] = useState({
+    merchant: "",
+    amount: 0,
+    description: "",
+  });
 
   useEffect(() => {
     window.history.replaceState(null, "", `#${screen}`);
@@ -62,11 +75,47 @@ export default function App() {
       case "home":
         return <HomeScreen onNavigate={(s) => go(s as Screen)} />;
       case "transfer":
-        return <TransferScreen onBack={() => go("home")} onContinue={() => go("payconfirm")} />;
+        return (
+          <TransferScreen
+            onBack={() => go("home")}
+            onContinue={(data) => {
+              setTransferData(data);
+              go("payconfirm");
+            }}
+          />
+        );
       case "qrscan":
-        return <QRScanScreen onBack={() => go("home")} onScanSuccess={() => go("payconfirm")} />;
+        return (
+          <QRScanScreen
+            onBack={() => go("home")}
+            onScanSuccess={(data) => {
+              setPaymentData({
+                merchant: data.merchant,
+                amount: data.amount,
+                description: "QR Payment",
+              });
+
+              go("payconfirmscan");
+            }}
+          />
+        );
       case "payconfirm":
-        return <PaymentConfirmScreen onBack={() => go("home")} onConfirm={() => go("paysuccess")} />;
+        return (
+          <PaymentConfirmScreen
+            transferData={transferData}
+            onBack={() => go("transfer")}
+            onConfirm={() => go("paysuccess")}
+          />
+        );
+
+      case "payconfirmscan":
+        return (
+          <PaymentConfirmScanScreen
+            paymentData={paymentData}
+            onBack={() => go("qrscan")}
+            onConfirm={() => go("paysuccess")}
+          />
+        );
       case "paysuccess":
         return <PaymentSuccessScreen onHome={() => go("home")} />;
       case "receiptscan":

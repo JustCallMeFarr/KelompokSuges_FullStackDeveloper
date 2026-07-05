@@ -1,30 +1,37 @@
+import { useEffect, useState } from "react";
 import { ArrowLeft, Search, Filter, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { motion } from "motion/react";
+
 
 interface HistoryScreenProps {
   onBack: () => void;
 }
 
-const allTransactions = [
-  { id: 1, name: "Tokopedia", type: "debit", amount: -250000, date: "04 Jun 2026", time: "10:24", icon: "🛍️", category: "Shopping" },
-  { id: 2, name: "Salary - PT Maju Jaya", type: "credit", amount: 8500000, date: "04 Jun 2026", time: "08:00", icon: "💼", category: "Income" },
-  { id: 3, name: "Transfer ke Andi Wijaya", type: "debit", amount: -1000000, date: "03 Jun 2026", time: "15:30", icon: "👤", category: "Transfer" },
-  { id: 4, name: "Grab Food", type: "debit", amount: -75000, date: "03 Jun 2026", time: "12:15", icon: "🍔", category: "Food" },
-  { id: 5, name: "Netflix", type: "debit", amount: -59000, date: "02 Jun 2026", time: "09:00", icon: "🎬", category: "Entertainment" },
-  { id: 6, name: "PLN Token Listrik", type: "debit", amount: -200000, date: "01 Jun 2026", time: "14:22", icon: "⚡", category: "Bills" },
-  { id: 7, name: "Transfer dari Sari Dewi", type: "credit", amount: 500000, date: "01 Jun 2026", time: "09:45", icon: "👤", category: "Transfer" },
-  { id: 8, name: "Indomaret", type: "debit", amount: -45000, date: "31 May 2026", time: "18:30", icon: "🏪", category: "Shopping" },
-];
 
-const grouped = [
-  { date: "Today, 04 Jun 2026", items: allTransactions.slice(0, 2) },
-  { date: "Yesterday, 03 Jun 2026", items: allTransactions.slice(2, 4) },
-  { date: "02 Jun 2026", items: allTransactions.slice(4, 5) },
-  { date: "01 Jun 2026", items: allTransactions.slice(5, 7) },
-  { date: "31 May 2026", items: allTransactions.slice(7) },
-];
 
 export function HistoryScreen({ onBack }: HistoryScreenProps) {
+  const [transactions, setTransactions] = useState<any[]>([]);
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+
+      const user = JSON.parse(localStorage.getItem("user")!);
+
+      const res = await fetch(
+        `http://localhost:3000/api/transaksi/${user.id_user}`
+      );
+
+      const data = await res.json();
+
+      setTransactions(data);
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="flex flex-col h-full" style={{ background: "#F0F4FF" }}>
       {/* Header */}
@@ -118,93 +125,53 @@ export function HistoryScreen({ onBack }: HistoryScreenProps) {
         animate={{ opacity: 1 }}
         className="flex flex-col gap-1 px-6 pt-6 pb-6 overflow-y-auto flex-1"
       >
-        {grouped.map((group) => (
-          <div key={group.date} className="mb-4">
-            <p style={{ color: "#94A3B8", fontSize: "11px", fontWeight: 700, letterSpacing: "0.06em", marginBottom: 8 }}>
-              {group.date.toUpperCase()}
-            </p>
-            <div className="flex flex-col gap-2">
-              {group.items.map((tx) => (
-                <div
-                  key={tx.id}
-                  style={{
-                    background: "white",
-                    borderRadius: 16,
-                    padding: "14px 16px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    boxShadow: "0 2px 8px rgba(10,22,40,0.05)",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 14,
-                      background: "#F0F4FF",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 20,
-                      flexShrink: 0,
-                      position: "relative",
-                    }}
-                  >
-                    {tx.icon}
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: -2,
-                        right: -2,
-                        width: 16,
-                        height: 16,
-                        borderRadius: "50%",
-                        background: tx.type === "credit" ? "#10B981" : "#EF4444",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid white",
-                      }}
-                    >
-                      {tx.type === "credit" ? (
-                        <ArrowDownLeft size={8} color="white" />
-                      ) : (
-                        <ArrowUpRight size={8} color="white" />
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ color: "#0A1628", fontSize: "13px", fontWeight: 600 }}>{tx.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span
-                        style={{
-                          background: "#F0F4FF",
-                          borderRadius: 6,
-                          padding: "1px 6px",
-                          fontSize: "10px",
-                          color: "#64748B",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {tx.category}
-                      </span>
-                      <span style={{ color: "#CBD5E1", fontSize: "10px" }}>{tx.time}</span>
-                    </div>
-                  </div>
-                  <p
-                    style={{
-                      color: tx.type === "credit" ? "#10B981" : "#0A1628",
-                      fontSize: "13px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {tx.type === "credit" ? "+" : "-"}Rp{" "}
-                    {Math.abs(tx.amount).toLocaleString("id-ID")}
-                  </p>
-                </div>
-              ))}
+        {transactions.map((tx) => (
+          <div
+            key={tx.id_transaksi}
+            style={{
+              background: "white",
+              borderRadius: 16,
+              padding: "14px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              boxShadow: "0 2px 8px rgba(10,22,40,0.05)",
+            }}
+          >
+            {/* ICON */}
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 14,
+                background: "#F0F4FF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+              }}
+            >
+              💳
             </div>
+
+            {/* TEXT */}
+            <div style={{ flex: 1 }}>
+              <p style={{ color: "#0A1628", fontWeight: 600 }}>
+                {tx.keterangan}
+              </p>
+            </div>
+
+            {/* AMOUNT (CUMA 1 SEKARANG) */}
+            <p
+              style={{
+                color: "#1E5FFF",
+                fontWeight: 700,
+                fontSize: "13px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Rp {Number(tx.jumlah).toLocaleString("id-ID")}
+            </p>
           </div>
         ))}
       </motion.div>

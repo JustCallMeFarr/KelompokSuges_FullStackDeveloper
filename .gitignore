@@ -16,3 +16,10 @@ Backend/node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+service-account.json
+secrets/**
+
+Backend/kipk-report-78a578ea327c.json
+
+Backend/uploads/

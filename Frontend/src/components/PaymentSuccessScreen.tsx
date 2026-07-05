@@ -1,11 +1,20 @@
 import { motion } from "motion/react";
 import { Download, Home, Share2 } from "lucide-react";
-
+import { useEffect, useState } from "react";
 interface PaymentSuccessScreenProps {
   onHome: () => void;
 }
 
 export function PaymentSuccessScreen({ onHome }: PaymentSuccessScreenProps) {
+  const [payment, setPayment] = useState<any>(null);
+
+  useEffect(() => {
+    const data = localStorage.getItem("lastPayment");
+
+    if (data) {
+      setPayment(JSON.parse(data));
+    }
+  }, []);
   return (
     <div className="flex flex-col h-full" style={{ background: "#F0F4FF" }}>
       {/* Success animation area */}
@@ -131,22 +140,24 @@ export function PaymentSuccessScreen({ onHome }: PaymentSuccessScreenProps) {
             }}
           >
             <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px" }}>Amount Paid</p>
-            <h2 style={{ color: "white", letterSpacing: "-0.02em" }}>Rp 75.000</h2>
+            <h2 style={{ color: "white", letterSpacing: "-0.02em" }}>
+              Rp {payment?.amount?.toLocaleString("id-ID")}
+            </h2>
           </div>
 
           {/* Zigzag */}
           <div style={{ height: 12, background: "#F0F4FF", position: "relative" }}>
             <svg width="100%" height="12" style={{ position: "absolute", top: 0 }}>
-              <path d="M0 0 Q15 12 30 0 Q45 12 60 0 Q75 12 90 0 Q105 12 120 0 Q135 12 150 0 Q165 12 180 0 Q195 12 210 0 Q225 12 240 0 Q255 12 270 0 Q285 12 300 0 Q315 12 330 0 Q345 12 360 0" fill="white"/>
+              <path d="M0 0 Q15 12 30 0 Q45 12 60 0 Q75 12 90 0 Q105 12 120 0 Q135 12 150 0 Q165 12 180 0 Q195 12 210 0 Q225 12 240 0 Q255 12 270 0 Q285 12 300 0 Q315 12 330 0 Q345 12 360 0" fill="white" />
             </svg>
           </div>
 
           <div className="px-6 py-4 flex flex-col gap-3">
             {[
-              { label: "Merchant", value: "Warung Makan Padang" },
-              { label: "Date", value: "04 Jun 2026, 12:30" },
-              { label: "Method", value: "NovaPay Balance" },
-              { label: "Reference", value: "#NPY2026060412301" },
+              { label: "Merchant", value: payment?.merchant },
+              { label: "Description", value: payment?.description },
+              { label: "Date", value: payment?.date },
+              { label: "Reference", value: payment?.reference },
               { label: "Status", value: "✅ Success" },
             ].map(({ label, value }) => (
               <div key={label} className="flex justify-between">

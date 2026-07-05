@@ -1,6 +1,6 @@
 import { ArrowLeft, Download, Share2, ShoppingCart } from "lucide-react";
 import { motion } from "motion/react";
-
+import { toast } from "sonner";
 interface ReceiptResultScreenProps {
   onBack: () => void;
 }
@@ -17,6 +17,7 @@ export function ReceiptResultScreen({ onBack }: ReceiptResultScreenProps) {
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
   const tax = Math.round(subtotal * 0.1);
   const total = subtotal + tax;
+  // Tambahkan di sini
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#F0F4FF" }}>
@@ -152,22 +153,29 @@ export function ReceiptResultScreen({ onBack }: ReceiptResultScreenProps) {
         </div>
 
         <div className="flex gap-3">
+
           <button
+            onClick={() => {
+              toast.success("Struk berhasil disimpan 🎉", {
+                description: "Transaksi telah ditambahkan ke riwayat.",
+              });
+
+              onBack();
+            }}
             style={{
               flex: 1,
               background: "linear-gradient(135deg, #1E5FFF, #4D84FF)",
               borderRadius: 14,
               padding: "14px",
-              color: "white",
+              color: "#edeff2",
               fontWeight: 600,
               fontSize: "14px",
-              border: "none",
+              border: "1.5px solid rgba(0,0,0,0.08)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              boxShadow: "0 8px 24px rgba(30,95,255,0.3)",
             }}
           >
             <Download size={16} />

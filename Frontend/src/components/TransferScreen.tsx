@@ -4,7 +4,12 @@ import { motion } from "motion/react";
 
 interface TransferScreenProps {
   onBack: () => void;
-  onContinue: () => void;
+  onContinue: (data: {
+    rekening: string;
+    nama: string;
+    jumlah: number;
+    keterangan: string;
+  }) => void;
 }
 
 const favorites = [
@@ -17,10 +22,12 @@ const favorites = [
 const avatarColors = ["#1E5FFF", "#6366F1", "#0EA5E9", "#10B981"];
 
 export function TransferScreen({ onBack, onContinue }: TransferScreenProps) {
+  const [rekening, setRekening] = useState("");
+  const [nama, setNama] = useState("");
+
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [selectedFav, setSelectedFav] = useState<number | null>(null);
-
   const formatAmount = (val: string) => {
     const num = val.replace(/\D/g, "");
     return num ? parseInt(num).toLocaleString("id-ID") : "";
@@ -104,41 +111,83 @@ export function TransferScreen({ onBack, onContinue }: TransferScreenProps) {
         >
           <h4 style={{ color: "#0A1628", marginBottom: 16 }}>Transfer Details</h4>
 
-          {[
-            { label: "ACCOUNT NUMBER", placeholder: "Enter account number", type: "tel" },
-            { label: "RECIPIENT NAME", placeholder: "Account holder name", type: "text", readonly: selectedFav !== null, value: selectedFav ? favorites.find(f => f.id === selectedFav)?.name : "" },
-          ].map((f) => (
-            <div key={f.label} style={{ marginBottom: 14 }}>
-              <label style={{ color: "#64748B", fontSize: "11px", fontWeight: 600, letterSpacing: "0.06em" }}>
-                {f.label}
-              </label>
-              <div
+          <div style={{ marginBottom: 14 }}>
+            <label
+              style={{
+                color: "#64748B",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+              }}
+            >
+              ACCOUNT NUMBER
+            </label>
+
+            <div
+              style={{
+                background: "#F8FAFF",
+                border: "1.5px solid rgba(30,95,255,0.1)",
+                borderRadius: 12,
+                marginTop: 6,
+              }}
+              className="flex items-center px-4"
+            >
+              <input
+                type="text"
+                placeholder="Enter account number"
+                value={rekening}
+                onChange={(e) => setRekening(e.target.value)}
                 style={{
-                  background: "#F8FAFF",
-                  border: "1.5px solid rgba(30,95,255,0.1)",
-                  borderRadius: 12,
-                  marginTop: 6,
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  padding: "12px 0",
+                  color: "#0A1628",
+                  fontSize: "14px",
                 }}
-                className="flex items-center px-4"
-              >
-                <input
-                  type={f.type}
-                  placeholder={f.placeholder}
-                  defaultValue={f.value || ""}
-                  readOnly={f.readonly}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    outline: "none",
-                    width: "100%",
-                    padding: "12px 0",
-                    color: "#0A1628",
-                    fontSize: "14px",
-                  }}
-                />
-              </div>
+              />
             </div>
-          ))}
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label
+              style={{
+                color: "#64748B",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+              }}
+            >
+              RECIPIENT NAME
+            </label>
+
+            <div
+              style={{
+                background: "#F8FAFF",
+                border: "1.5px solid rgba(30,95,255,0.1)",
+                borderRadius: 12,
+                marginTop: 6,
+              }}
+              className="flex items-center px-4"
+            >
+              <input
+                type="text"
+                placeholder="Recipient name"
+                value={nama}
+                onChange={(e) => setNama(e.target.value)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  padding: "12px 0",
+                  color: "#0A1628",
+                  fontSize: "14px",
+                }}
+              />
+            </div>
+          </div>
 
           {/* Amount */}
           <div style={{ marginBottom: 14 }}>
@@ -245,7 +294,14 @@ export function TransferScreen({ onBack, onContinue }: TransferScreenProps) {
         </div>
 
         <button
-          onClick={onContinue}
+          onClick={() =>
+            onContinue({
+              rekening,
+              nama,
+              jumlah: Number(amount.replace(/\./g, "")),
+              keterangan: note,
+            })
+          }
           style={{
             background: "linear-gradient(135deg, #1E5FFF, #4D84FF)",
             borderRadius: 14,

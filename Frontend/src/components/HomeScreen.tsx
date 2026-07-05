@@ -7,13 +7,7 @@ interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
 
-const transactions = [
-  { id: 1, name: "Tokopedia", type: "debit", amount: -250000, date: "Today, 10:24", icon: "🛍️", category: "Shopping" },
-  { id: 2, name: "Salary - PT Maju Jaya", type: "credit", amount: 8500000, date: "Today, 08:00", icon: "💼", category: "Income" },
-  { id: 3, name: "Transfer ke Andi", type: "debit", amount: -1000000, date: "Yesterday, 15:30", icon: "👤", category: "Transfer" },
-  { id: 4, name: "Grab Food", type: "debit", amount: -75000, date: "Yesterday, 12:15", icon: "🍔", category: "Food" },
-  { id: 5, name: "Netflix", type: "debit", amount: -59000, date: "Jun 2, 09:00", icon: "🎬", category: "Entertainment" },
-];
+
 
 const banners = [
   { id: 1, title: "Cashback 20%", sub: "Transfer ke semua bank gratis", bg: "linear-gradient(135deg, #1E5FFF, #4D84FF)", emoji: "💳" },
@@ -26,6 +20,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [displayName, setDisplayName] = useState("User");
   const [wallet, setWallet] = useState<any>(null);
+  const [transactions, setTransactions] = useState([]);
 
   const initials = displayName
     .split(" ")
@@ -51,6 +46,16 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
       })
       .catch(err => console.error(err));
 
+  }, []);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    fetch(`http://localhost:3000/api/transaksi/${user.id_user}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTransactions(data.slice(0, 3)); // cuma tampil 3 transaksi terbaru
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   return (
@@ -274,51 +279,79 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            {transactions.map((tx) => (
-              <div
-                key={tx.id}
-                style={{
-                  background: "white",
-                  borderRadius: 16,
-                  padding: "14px 16px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  boxShadow: "0 2px 8px rgba(10,22,40,0.05)",
-                }}
-              >
+            {transactions.map((tx: any) => {
+              const icon =
+                tx.jenis_transaksi === "TRANSFER"
+                  ? "💸"
+                  : tx.jenis_transaksi === "PAYMENT"
+                    ? "💳"
+                    : "🧾";
+
+              const color =
+                tx.jenis_transaksi === "TRANSFER"
+                  ? "#EF4444"
+                  : "#10B981";
+
+              return (
                 <div
+                  key={tx.id_transaksi}
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 14,
-                    background: "#F0F4FF",
+                    background: "white",
+                    borderRadius: 16,
+                    padding: "14px 16px",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                    flexShrink: 0,
+                    gap: 12,
+                    boxShadow: "0 2px 8px rgba(10,22,40,0.05)",
                   }}
                 >
-                  {tx.icon}
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 14,
+                      background: "#F0F4FF",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 20,
+                    }}
+                  >
+                    {icon}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <p
+                      style={{
+                        color: "#0A1628",
+                        fontWeight: 600,
+                        fontSize: 13,
+                      }}
+                    >
+                      {tx.jenis_transaksi}
+                    </p>
+
+                    <p
+                      style={{
+                        color: "#94A3B8",
+                        fontSize: 11,
+                      }}
+                    >
+                      {tx.keterangan}
+                    </p>
+                  </div>
+
+                  <p
+                    style={{
+                      color,
+                      fontWeight: 700,
+                    }}
+                  >
+                    Rp {Number(tx.jumlah).toLocaleString("id-ID")}
+                  </p>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: "#0A1628", fontSize: "13px", fontWeight: 600 }}>{tx.name}</p>
-                  <p style={{ color: "#94A3B8", fontSize: "11px", marginTop: 2 }}>{tx.date}</p>
-                </div>
-                <p
-                  style={{
-                    color: tx.type === "credit" ? "#10B981" : "#0A1628",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                  }}
-                >
-                  {tx.type === "credit" ? "+" : ""}
-                  {tx.amount < 0 ? "-" : ""}Rp{" "}
-                  {Math.abs(tx.amount).toLocaleString("id-ID")}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

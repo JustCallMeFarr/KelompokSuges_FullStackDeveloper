@@ -1,6 +1,8 @@
+import { useState, useRef } from "react";
 import { ArrowLeft, Upload, Zap } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { toast } from "sonner";
+
 
 interface ReceiptScanScreenProps {
   onBack: () => void;
@@ -10,6 +12,7 @@ interface ReceiptScanScreenProps {
 export function ReceiptScanScreen({ onBack, onScanComplete }: ReceiptScanScreenProps) {
   const [scanning, setScanning] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleScan = () => {
     setScanning(true);
@@ -17,6 +20,48 @@ export function ReceiptScanScreen({ onBack, onScanComplete }: ReceiptScanScreenP
       setScanning(false);
       onScanComplete();
     }, 2000);
+  };
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user")!);
+
+      const formData = new FormData();
+
+      formData.append("receipt", file);
+      formData.append("id_user", user.id_user);
+      formData.append("merchant", "Warung Makan Padang");
+      formData.append("amount", "119000");
+      formData.append("description", "Scan Struk");
+
+      const res = await fetch("http://localhost:3000/api/receipt", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("OCR berhasil diproses 🎉", {
+          description: "Struk berhasil dianalisis dan siap disimpan.",
+        });
+
+        onScanComplete();
+      } else {
+        toast.error("Upload gagal", {
+          description: data.message || "Terjadi kesalahan.",
+        });
+      }
+    } catch (err) {
+      toast.error("Tidak dapat terhubung ke server", {
+        description: "Periksa koneksi atau coba beberapa saat lagi.",
+      });
+    }
   };
 
   return (
@@ -187,6 +232,7 @@ export function ReceiptScanScreen({ onBack, onScanComplete }: ReceiptScanScreenP
           {scanning ? "Processing..." : "Scan Receipt"}
         </button>
         <button
+          onClick={() => fileInputRef.current?.click()}
           style={{
             width: "100%",
             background: "rgba(255,255,255,0.08)",
@@ -206,6 +252,13 @@ export function ReceiptScanScreen({ onBack, onScanComplete }: ReceiptScanScreenP
           <Upload size={18} />
           Upload from Gallery
         </button>
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleUpload}
+          style={{ display: "none" }}
+        />
       </div>
     </div>
   );

@@ -1,26 +1,23 @@
+require("dotenv").config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./config/db'); // Pastikan db.js kamu sudah benar
 const userRoutes = require('./routers/userRoutes');
+const transactionRoutes = require("./routers/transactionRoutes");
+const paymentRoutes = require("./routers/paymentRoutes");
+const receiptRoutes = require("./routers/receiptRoutes");
+const adminRoutes = require("./routers/adminRoutes");
 
 const app = express();
 const PORT = 3000;
 const SECRET_KEY = 'KIPK_TRACKER_RAHASIA';
 
-// --- 1. KONFIGURASI PENYIMPANAN FILE (MULTER) ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Pastikan folder 'uploads' sudah dibuat manual di project
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+
+const upload = require("./config/upload");
 
 // --- 2. MIDDLEWARE ---
 app.use(cors());
@@ -28,6 +25,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use('/api', userRoutes);
+app.use("/api", transactionRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/receipt", receiptRoutes);
+app.use("/api", adminRoutes);
 
 // --- 3. ROUTES AUTH (REGISTER & LOGIN) ---
 
@@ -131,7 +132,31 @@ app.put('/api/profile/setup', async (req, res) => {
 
 // --- 5. CEK KONEKSI & TEST ---
 app.get('/', (req, res) => res.send('API KIP-K Tracker Ready!'));
+const connectSheet = require("./config/googleSheet");
 
+// TEST GOOGLE SHEET (sementara)
+async function testGoogleSheet() {
+    try {
+        const doc = await connectSheet();
+
+        const sheet = doc.sheetsByIndex[0];
+
+        await sheet.addRow({
+            tanggal: new Date().toISOString(),
+            tipe: "TRANSFER",
+            jumlah: 100000,
+            status: "SUCCESS",
+            keterangan: "Test dari backend",
+        });
+
+        console.log("✅ BERHASIL MASUK GOOGLE SHEET");
+    } catch (err) {
+        console.log("❌ ERROR SHEET:", err.message);
+    }
+}
+
+// jalankan sekali saat server start
+testGoogleSheet();
 app.listen(PORT, () => {
     console.log(`
 ✅ Server nyala di http://localhost:${PORT}
